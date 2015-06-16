@@ -31,7 +31,14 @@ class Email(object):
             if item[0] == 'Date':
                 self.date = strftime('%d %B %Y',email.utils.parsedate(item[1]))
             if item[0] == 'Subject':
-                self.subject = item[1]
+                if item[1].startswith("=?utf-8?"):
+                    self.subject, encoding2 = email.Header.decode_header(item[1])[0]
+                    # ^^^ breaks program when encounters subject encoded with "iso-8859"
+                elif item[1].startswith("=?UTF-8?"):
+                    self.subject, encoding2 = email.Header.decode_header(item[1])[0]
+                    # ^^^ breaks program when encounters subject encoded with "iso-8859"
+                else:
+                    self.subject = item[1]
                 
     def construct_dict(self):
         '''Constructs a dictionary of email information.
